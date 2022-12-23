@@ -1,0 +1,114 @@
+unit Unit2;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls;
+
+type
+  TForm2 = class(TForm)
+    Button2: TButton;
+    Button3: TButton;
+    Button1: TButton;
+    RadioGroup1: TRadioGroup;
+    RG2: TRadioGroup;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure RG2Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    DopSt : String;
+    { Public declarations }
+  end;
+
+var
+  Form2: TForm2;
+  ts : string;
+implementation
+
+uses TableFm;
+
+{$R *.dfm}
+
+procedure TForm2.Button1Click(Sender: TObject);
+var s, s2: string;
+begin
+ if Radiogroup1.ItemIndex = 0 then
+ Begin
+   s := 'Data\TempGraph.txt';
+   s2 := 'Data\Graph\'+Form1.Languages.Items[Form1.Languages.ItemIndex]+'\R_HAG'+ts+'.chs' ;
+   SetCurrentDir(Form1.MyDir);
+   winexec(PChar('Graph.exe '+s+' '+s2+ ' ' +DopSt+' -thick -menu -readonly -n -rnav -gray'),sw_restore);
+ End
+    else
+     Begin
+      s := 'Data\TempGraphA.txt';
+      s2 := 'Data\Graph\'+Form1.Languages.Items[Form1.Languages.ItemIndex]+'\A_HAG'+ts+'.chs' ;
+      SetCurrentDir(Form1.MyDir);
+      winexec(PChar('Graph.exe '+s+' '+s2+ ' ' +DopSt+' -thick -menu -rnav -readonly -n -gray'),sw_restore);
+ End
+end;
+
+procedure TForm2.Button2Click(Sender: TObject);
+var s, s2: string;
+begin
+ if Radiogroup1.ItemIndex = 0 then
+ Begin
+   s := 'Data\TempGraph.txt';
+   s2 := 'Data\Graph\'+Form1.Languages.Items[Form1.Languages.ItemIndex]+'\R_Hgt'+ts+'.chs' ;
+   SetCurrentDir(Form1.MyDir);
+   if Button1.Enabled then
+      if MessageDlg(Form1.Qstn, mtConfirmation, [mbYes, mbNo], 0) =6 then
+      Begin
+        // s2 := 'Data\Graph\'+Form1.Languages.Items[Form1.Languages.ItemIndex]+'\R_Hgt2'+ts+'.chs' ;
+         s := 'Data\TempGraphB.txt';
+      End;
+   //  else
+       winexec(PChar('Graph.exe '+s+' '+s2+ ' ' +DopSt+' -thick -menu -readonly -rnav -n -gray'),sw_restore);
+ End
+    else
+     Begin
+      s := 'Data\TempGraphA.txt';
+      s2 := 'Data\Graph\'+Form1.Languages.Items[Form1.Languages.ItemIndex]+'\A_Hgt'+ts+'.chs' ;
+      SetCurrentDir(Form1.MyDir);
+      winexec(PChar('Graph.exe '+s+' '+s2+ ' ' +DopSt+' -thick -menu -readonly -rnav -n -gray'),sw_restore);
+ End
+end;
+
+procedure TForm2.Button3Click(Sender: TObject);
+var s, s2: string;
+begin
+ if Radiogroup1.ItemIndex = 0 then
+ Begin
+   s := 'Data\TempGraph.txt';
+   s2 := 'Data\Graph\'+Form1.Languages.Items[Form1.Languages.ItemIndex]+'\R_Dev'+ts+'.chs' ;
+   SetCurrentDir(Form1.MyDir);
+   winexec(PChar('Graph.exe '+s+' '+s2+ ' ' +DopSt+' -thick -menu -readonly -rnav -n -gray'),sw_restore);
+ End
+   else
+     Begin
+      s := 'Data\TempGraphA.txt';
+      s2 := 'Data\Graph\'+Form1.Languages.Items[Form1.Languages.ItemIndex]+'\A_Dev'+ts+'.chs' ;
+      SetCurrentDir(Form1.MyDir);
+      winexec(PChar('Graph.exe '+s+' '+s2+ ' ' +DopSt+' -thick -menu -rnav -readonly -n -gray'),sw_restore);
+ End
+end;
+
+procedure TForm2.FormCreate(Sender: TObject);
+begin
+ ts :='';
+end;
+
+procedure TForm2.RG2Click(Sender: TObject);
+begin
+ case RG2.ItemIndex of
+   0: ts :='';
+   1: ts :='_t';
+ end;
+end;
+
+end.

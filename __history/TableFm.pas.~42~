@@ -1,0 +1,1538 @@
+unit TableFm;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Grids, ExtCtrls, Buttons, Spin, XPMan, ComCtrls, ShellAPI;
+
+type
+  TRoute = record
+     name, t1, t2 : string;
+     RH : array [1..7] of real;
+     RD : array [1..4] of real;
+     Est, e1, e2 : integer;
+
+     Hmax, Havg, Hmin, Davg, Dmax : real;
+
+     DRMS, BadH, x1, y1, x2, y2 : real;
+
+     Harray : array of Double;
+     Darray : array of Double;
+     Larray : array of Double;
+     Aarray : array of Double;
+     Parray : array of Single;
+     Tarray : array of String;
+  end;
+
+
+  TForm1 = class(TForm)
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Edit1: TEdit;
+    SpeedButton1: TSpeedButton;
+    StringGrid: TStringGrid;
+    Panel4: TPanel;
+    OpenDialog1: TOpenDialog;
+    Panel13: TPanel;
+    ComboBox2: TComboBox;
+    Label2: TLabel;
+    Label1: TLabel;
+    ComboBox1: TComboBox;
+    Panel14: TPanel;
+    Languages: TComboBox;
+    UpB: TSpeedButton;
+    DownB: TSpeedButton;
+    Panel15: TPanel;
+    PB: TLabel;
+    Panel16: TPanel;
+    ch: TCheckBox;
+    CheckBox1: TCheckBox;
+    Button2: TButton;
+    Panel11: TPanel;
+    SpinEdit3: TSpinEdit;
+    SpinEdit2: TSpinEdit;
+    SpinEdit1: TSpinEdit;
+    SpeedButton2: TSpeedButton;
+    Label5: TLabel;
+    Label4: TLabel;
+    Label3: TLabel;
+    Label13: TLabel;
+    Bevel1: TBevel;
+    Button3: TButton;
+    SpeedButton3: TSpeedButton;
+    Lang2: TComboBox;
+    SpeedButton4: TSpeedButton;
+    SaveDialog1: TSaveDialog;
+    Image1: TImage;
+    SpeedButton5: TSpeedButton;
+    CheckBox2: TCheckBox;
+    SpinEdit4: TSpinEdit;
+    ScrollBox1: TScrollBox;
+    Panel10: TPanel;
+    Panel5: TPanel;
+    Shape6: TShape;
+    Shape4: TShape;
+    Shape3: TShape;
+    Shape1: TShape;
+    t6: TLabel;
+    t5: TLabel;
+    t4: TLabel;
+    t3: TLabel;
+    t2: TLabel;
+    t1: TLabel;
+    s6: TShape;
+    s5: TShape;
+    s4: TShape;
+    s3: TShape;
+    s2: TShape;
+    s1: TShape;
+    Label6: TLabel;
+    Label20: TLabel;
+    l5: TLabel;
+    l4: TLabel;
+    l3: TLabel;
+    l2: TLabel;
+    l1: TLabel;
+    HBottom: TShape;
+    Label10: TLabel;
+    Panel12: TPanel;
+    Panel7: TPanel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    ESTIM: TLabel;
+    RMSU: TLabel;
+    BRAK: TLabel;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Label21: TLabel;
+    Label22: TLabel;
+    MaxU: TLabel;
+    AvU: TLabel;
+    MinH: TLabel;
+    MaxH: TLabel;
+    AvH: TLabel;
+    Panel6: TPanel;
+    Shape5: TShape;
+    Shape2: TShape;
+    tu4: TLabel;
+    tu3: TLabel;
+    tu2: TLabel;
+    tu1: TLabel;
+    su4: TShape;
+    su3: TShape;
+    su2: TShape;
+    su1: TShape;
+    Label14: TLabel;
+    Label15: TLabel;
+    lu3: TLabel;
+    lu2: TLabel;
+    lu1: TLabel;
+    Label19: TLabel;
+    DBottom: TShape;
+    Label11: TLabel;
+    Button1: TButton;
+    Panel9: TPanel;
+    Panel8: TPanel;
+    RouteNm: TLabel;
+    procedure FormResize(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+
+    procedure OpenSettings(FN: String);
+    procedure OpenData(FN: String);
+    procedure FormDestroy(Sender: TObject);
+    procedure OpenDialog1CanClose(Sender: TObject; var CanClose: Boolean);
+
+    procedure ClearGrid;
+    procedure Analyse;
+    procedure SpinEdit1Change(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure ComboBox1Change(Sender: TObject);
+    procedure LanguagesChange(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure StringGridClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure StringGridDrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
+    procedure chClick(Sender: TObject);
+    procedure DownBClick(Sender: TObject);
+    procedure UpBClick(Sender: TObject);
+    procedure ComboBox2Change(Sender: TObject);
+    procedure SaveGraph(I:Integer);
+    procedure SaveGraphNew(I:Integer; Dir:String); 
+    procedure FormCreate(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure CheckBox1Click(Sender: TObject);
+    procedure Lang2Change(Sender: TObject);
+    procedure SpeedButton4Click(Sender: TObject);
+    procedure SpeedButton5Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure SpinEdit4Change(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    FName, MyDir, Qstn, HG, Askfn : String;
+    Routes: array [0..10000] of TRoute;
+    RCount : integer;
+    Estims: array[0..5] of String;
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+  MinR, MinL, MaxR, MaxL : Integer;
+
+  FData : TStringList;
+
+  RH_lim : array [1..7] of integer;
+  RD_lim : array [1..4] of integer;
+
+  Smin, Smax, Sname :String;
+
+  FSt: Boolean;
+
+implementation
+
+uses Unit2, Unit3;
+
+{$R *.dfm}
+
+
+procedure AddFiles(Dir, Filter :string; var FileList:TStringList);
+var
+   SearchRec : TSearchrec;
+begin
+    if Dir[Length(Dir)]<>'\' then
+       Dir := Dir +'\';
+
+    if FindFirst(Dir + Filter, faAnyFile, SearchRec) = 0 then
+    begin
+      if (SearchRec.Name<> '')
+        and(SearchRec.Name <> '.')
+        and(SearchRec.Name <> '..')
+        and not ((SearchRec.Attr and faDirectory) = faDirectory) then
+          FileList.Add(SearchRec.Name);
+      while FindNext(SearchRec) = 0 do
+        if (SearchRec.Name <> '')
+          and(SearchRec.Name <> '.')
+          and(SearchRec.Name <> '..')
+          and not ((SearchRec.Attr and faDirectory) = faDirectory)  then
+             FileList.Add(SearchRec.Name);
+      FindClose(Searchrec);
+    end;
+end;
+
+function StrToFloat2(s:String):Double;
+
+ function IsDigit(ch:char):boolean;
+ begin
+    IsDigit := false;
+    if ch in ['0'..'9',DecimalSeparator] then
+      IsDigit := true;
+ end;
+
+var i:integer;
+begin
+
+  for i:=length(s) Downto 1 do
+    if (s[i]= ',') or  (s[i] = '.') then
+        s[i] := DecimalSeparator;
+
+  for i:=length(s) Downto 1 do
+    if (not IsDigit(s[i]))
+        and (not (s[i]='-'))
+        and (not (s[i]='+'))
+        and (not (s[i]='E')) then
+          Delete(s,i,1);
+
+  try
+    StrToFloat2 := StrToFloat(s);
+  except
+    StrToFloat2 := 0;
+  end;
+end;
+
+function GetColsS(str: string; ColN, ColCount:integer; Spc:byte): string;
+var j,stl,b :integer;
+    sep :String;
+begin
+   result:='';
+   stl:=0;
+   b:=1;
+   sep:=' ';
+
+   Case Spc of
+     0: sep:=' ';
+     1: sep:=#$9;
+   //  2: sep:= LoadRData.Spacer.Text[1];
+     3: sep:=';';
+     4: sep:=',';
+   end;
+
+   for j:=1 to length(Str)+1 do
+   Begin
+
+     if ((copy(Str,j,1)=sep)or(j=length(Str)+1))and(copy(Str,j-1,1)<>sep) then
+     begin
+
+       if (stl>=ColN) and (Stl<ColN+ColCount) then
+       Begin
+        if result='' then
+          Result:=(Copy(Str,b,j-b))
+            else
+              Result:=Result+' '+(Copy(Str,b,j-b));
+       End;
+
+       inc(stl);
+       b:=j+1;
+
+       if stl>ColN+ColCount then
+          break;
+     end;
+
+  End;
+
+end;
+
+function GetCols(str: string; ColN, ColCount:integer; Spc:byte): string;
+var j :integer;  sep:Char;
+begin
+   result:= GetColsS(str, ColN, ColCount, Spc);
+   Case Spc of
+     0: sep:=' ';
+     1: sep:=#$9;
+     3: sep:=';';
+     4: sep:=',';
+   end;
+
+  if result <> '' then
+    for j:= 1 to length(Result)+1 do
+        if ((result[j] = '.') or (result[j] = ','))and(result[j]<>sep) then
+           result[j] := DecimalSeparator;
+end;
+
+
+procedure TForm1.FormResize(Sender: TObject);
+var I :Integer;
+begin
+
+ for i:= 0 to StringGrid.ColCount-1 do
+    StringGrid.ColWidths[i] := (StringGrid.Width - 25) div StringGrid.ColCount;
+
+end;
+
+function ReplaceZptToDot(s:string):string;
+var i: integer; replaced: boolean;
+begin
+   result := s;
+   for I := Length(s) DownTo 1 do
+     if s[i] = ',' then
+     begin
+       s[i] := '.';
+       break;
+     end;
+end;
+
+procedure TForm1.SaveGraphNew(I: Integer; Dir: String);
+var j: integer;
+    S : TStringList;
+begin
+  if StringGrid.Row <= 0 then
+    exit;
+
+  S := TSTringList.Create;
+
+  /// HMin
+  S.Add(SMin+ #$9 +FloatToStr(Routes[i].Larray[0]) + #$9 +  '0' + #$9 + '0' + #$9 +
+          IntToStr(SpinEdit1.Value) + #$9 + ReplaceZptToDot(Routes[i].Tarray[0]));
+
+  S.Add(SMin+ #$9 + FloatToStr(Routes[i].Larray[Length(Routes[i].Larray)-1]) + #$9 +  '0' + #$9 + '0' + #$9 +
+          IntToStr(SpinEdit1.Value)+ #$9 +
+          ReplaceZptToDot(Routes[i].Tarray[Length(Routes[i].Tarray)-1]));
+
+  // HMax
+  S.Add(SMax+ #$9 + FloatToStr(Routes[i].Larray[0]) + #$9 + '0' + #$9 +
+          IntToStr(SpinEdit3.Value) + #$9 + IntToStr(SpinEdit2.Value)+ #$9 +
+          ReplaceZptToDot(Routes[i].Tarray[0]));
+
+  S.Add(SMax+ #$9 + FloatToStr(Routes[i].Larray[Length(Routes[i].Larray)-1]) + #$9 + '0' + #$9 +
+          IntToStr(SpinEdit3.Value) + #$9 + IntToStr(SpinEdit2.Value)+ #$9 +
+          ReplaceZptToDot(Routes[i].Tarray[Length(Routes[i].Tarray)-1]));
+
+  for j := 0 to Length(Routes[i].Larray)-1 do
+    S.Add(SName+Routes[i].name + #$9 + FloatToStr(Routes[i].Larray[j]) + #$9 +
+          FloatToStr(Routes[i].Aarray[j]) + #$9 +
+          FloatToStr(Routes[i].Darray[j]) + #$9 +
+          FloatToStr(Routes[i].Harray[j])+ #$9 +
+          ReplaceZptToDot(Routes[i].Tarray[j]));
+
+  S.SaveToFile(Dir+'Data'+IntToStr(I+1)+'.txt');
+
+  for j := 0 to Length(Routes[i].Larray)-1 do
+    S.Add(Hg + #$9 + FloatToStr(Routes[i].Larray[j]) + #$9 +
+          FloatToStr(Routes[i].Aarray[j]-Routes[i].Harray[j]) + #$9 +
+          '0' +  #$9 + '0'+ #$9 +
+          ReplaceZptToDot(Routes[i].Tarray[j]));
+
+  S.SaveToFile(Dir+'DataB'+IntToStr(I+1)+'.txt');
+
+  S.Destroy;
+
+end;
+
+procedure TForm1.SpeedButton1Click(Sender: TObject);
+begin
+
+ if not OpenDialog1.Execute() then
+   exit;
+
+ FName := OpenDialog1.Filename;
+ OpenData(Fname);
+// Analyse;
+ Panel1.Visible := true;
+ Panel3.Visible := false;
+ Form1.AutoSize := false;
+ if ComboBox1.ItemIndex = 0 then
+   Form1.Height := 550
+ else
+   Form1.Height := 670;
+
+ Form1.Constraints.MinHeight := 550;
+ Form1.Constraints.MinWidth := 800;
+end;
+
+procedure TForm1.FormShow(Sender: TObject);
+begin
+ Panel5.ControlStyle := ControlStyle - [csParentBackground];
+ Panel6.ControlStyle := Panel5.ControlStyle;
+ Panel7.ControlStyle := Panel5.ControlStyle;
+ Panel8.ControlStyle := Panel5.ControlStyle;
+end;
+
+procedure TForm1.OpenData(FN: String);
+var i :integer;
+    testH : Double;
+begin
+  FData.Clear;
+  
+  Panel15.Visible := true;
+  Form1.Repaint;
+
+  FData.LoadFromFile(FN);
+  FData.SaveToFile(MyDir+'\Data\TempGraphA.txt');
+  TestH := 0;
+
+  if FData.Count > 5 then
+    for i := 0 to FData.Count-1 do
+    Begin
+       TestH := StrToFloat2(GetCols(FData[i], 10,1,1));
+       if TestH<>0 then
+         break;
+    End;
+
+  if TestH = 0 then
+  Begin
+       ComboBox1.ItemIndex := 0;
+       SpinEdit1.Enabled := false;
+       SpinEdit2.Enabled := false;
+       Panel10.Visible := false;
+       Form2.Button1.Enabled := false;
+  End;
+  ComboBox1.OnChange(nil);
+  Analyse;
+end;
+
+procedure TForm1.OpenSettings(FN: String);
+begin
+  ///
+end;
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+ FData.Destroy;
+end;
+
+procedure TForm1.OpenDialog1CanClose(Sender: TObject;
+  var CanClose: Boolean);
+begin
+//
+
+end;
+
+procedure TForm1.Analyse;
+var i, j, k, e1, e2, num, slip : integer;
+    s, s0, s1 : string;
+    SameName, found : boolean;
+    wH : real;
+    Sum, Min, Max, SumS : Double;
+begin
+  slip := 0;
+  if CheckBox2.Checked then
+     slip := SpinEdit4.Value;
+
+  s := '---';
+  RCount := 0;
+  ClearGrid;
+  num :=0;
+
+  if FData.Count = 0 then
+   exit;
+
+
+  Panel15.Visible := true;
+  Form1.Repaint;
+
+  /// 0. Define Intervals
+
+  RH_Lim[1] := SpinEdit1.Value;
+  RH_Lim[2] := SpinEdit1.Value + (SpinEdit2.Value-SpinEdit1.Value) div 3;
+  RH_Lim[3] := SpinEdit1.Value + 2*(SpinEdit2.Value-SpinEdit1.Value) div 3;
+  RH_Lim[4] := SpinEdit2.Value;
+  RH_Lim[5] := Round(SpinEdit2.Value*1.1);
+
+  l1.Caption := IntTostr(RH_Lim[1]);
+  l2.Caption := IntTostr(RH_Lim[2]);
+  l3.Caption := IntTostr(RH_Lim[3]);
+  l4.Caption := IntTostr(RH_Lim[4]);
+  l5.Caption := IntTostr(RH_Lim[5]);
+
+  RD_Lim[1] := Round(SpinEdit3.Value*0.5);
+  RD_Lim[2] := SpinEdit3.Value;
+  RD_Lim[3] := Round(SpinEdit3.Value*1.5);
+
+  lu1.Caption := IntTostr(RD_Lim[1]);
+  lu2.Caption := IntTostr(RD_Lim[2]);
+  lu3.Caption := IntTostr(RD_Lim[3]);
+
+
+  ////// 1. COLLECT DATA FOR EACH ROUTE!
+
+  for i :=0 to FData.Count-1 do
+  try
+  //begin
+    s0 := s;
+    
+
+    s := GetCols(FData[i], 5,1,1);
+
+    if s='---' then
+    begin
+      found := false;
+
+      if slip > 0 then
+      for j := I + 1 to I + slip do
+      begin
+         s1 := GetCols(FData[j], 5,1,1);
+
+         if num > 0 then
+           s1 := s1 +  '('+IntToStr(num)+')';
+
+         if s1 = s0 then
+         begin
+           found := true;
+           s := s1;
+           break;
+         end;
+
+      end;
+
+      if not found then
+        num := 0;
+      continue;
+    end;
+
+    if num > 0 then
+      s := s +  '('+IntToStr(num)+')';
+
+    if s = s0 then
+    Begin
+       /// Дополняю существующий
+
+
+      k := Length(Routes[RCount-1].Harray);
+      inc(k);
+      SetLength(Routes[RCount-1].Harray,k);
+      SetLength(Routes[RCount-1].Darray,k);
+      SetLength(Routes[RCount-1].Aarray,k);
+      SetLength(Routes[RCount-1].Larray,k);
+      SetLength(Routes[RCount-1].Parray,k);
+      SetLength(Routes[RCount-1].Tarray,k);
+
+      Routes[RCount-1].t2 := GetColsS(FData[i], 0,1,1);
+
+      Routes[RCount-1].x2 := StrToFloat2( GetCols(FData[i], 7,1,1));
+      Routes[RCount-1].y2 := StrToFloat2( GetCols(FData[i], 8,1,1));
+
+      Routes[RCount-1].Darray[k-1] := StrToFloat2( GetCols(FData[i], 6,1,1));
+
+      Routes[RCount-1].Aarray[k-1] := StrToFloat2( GetCols(FData[i], 9,1,1));
+      Routes[RCount-1].Larray[k-1] := StrToFloat2( GetCols(FData[i], 4,1,1));
+
+      Routes[RCount-1].Parray[k-1] := StrToFloat2( GetCols(FData[i], 12,1,1));
+
+      Routes[RCount-1].Tarray[k-1] := GetColsS(FData[i], 13,1,1) +' '+ Routes[RCount-1].t2;
+
+      case ComboBox1.ItemIndex of
+         0: Routes[RCount-1].Harray[k-1] := 0;
+         1: Routes[RCount-1].Harray[k-1] := StrToFloat2( GetCols(FData[i], 10,1,1));
+         2: Routes[RCount-1].Harray[k-1] := StrToFloat2( GetCols(FData[i], 11,1,1));
+      end;
+
+    End
+      else
+      Begin
+        /// Создаю новый
+
+        Inc(RCount);
+
+        /// Если такой номер уже есть
+
+        SameName := false;
+        for j := 0 to RCount-2 do
+            if Routes[j].name = s then
+            Begin
+              SameName := true;
+              break;
+            End;
+
+        if SameName then
+        Begin
+          j:=0;
+          repeat
+            inc(j);
+            SameName := false;
+            for k := 0 to RCount-1 do
+               if Routes[k].name = s+'('+IntToStr(j)+')' then
+               begin
+                 SameName := true;
+                 break;
+               end;
+          until Samename = false;
+
+        //  if J>1 then
+          s := s+ '('+IntToStr(j)+')';
+          num := j;
+          Routes[RCount-1].name := s;//+'('+IntToStr(j)+')';
+        End
+          else
+          begin
+            Routes[RCount-1].name := s;
+            num :=0;
+          end;
+
+        k := 1;
+
+        SetLength(Routes[RCount-1].Harray,k);
+        SetLength(Routes[RCount-1].Darray,k);
+        SetLength(Routes[RCount-1].Aarray,k);
+        SetLength(Routes[RCount-1].Larray,k);
+        SetLength(Routes[RCount-1].Parray,k);
+        SetLength(Routes[RCount-1].Tarray,k);
+
+        Routes[RCount-1].t1 := GetColsS(FData[i], 0,1,1);
+        Routes[RCount-1].t2 := GetColsS(FData[i], 0,1,1);
+        Routes[RCount-1].Tarray[k-1] := GetColsS(FData[i], 13,1,1) +' '+Routes[RCount-1].t2;
+
+        Routes[RCount-1].x1 := StrToFloat2( GetCols(FData[i], 7,1,1));
+        Routes[RCount-1].y1 := StrToFloat2( GetCols(FData[i], 8,1,1));
+        Routes[RCount-1].x2 := StrToFloat2( GetCols(FData[i], 7,1,1));
+        Routes[RCount-1].y2 := StrToFloat2( GetCols(FData[i], 8,1,1));
+
+        Routes[RCount-1].Aarray[k-1] := StrToFloat2( GetCols(FData[i], 9,1,1));
+        Routes[RCount-1].Larray[k-1] := StrToFloat2( GetCols(FData[i], 4,1,1));
+        Routes[RCount-1].Parray[k-1] := StrToInt( GetCols(FData[i], 12,1,1));
+
+        Routes[RCount-1].Darray[k-1] := StrToFloat2( GetCols(FData[i], 6,1,1));
+        case ComboBox1.ItemIndex of
+           0: Routes[RCount-1].Harray[k-1] := 0;
+           1: Routes[RCount-1].Harray[k-1] := StrToFloat2( GetCols(FData[i], 10,1,1));
+           2: Routes[RCount-1].Harray[k-1] := StrToFloat2( GetCols(FData[i], 11,1,1));
+        end;
+      End;
+
+
+  except
+  end;  //// end i cycle
+
+
+  ///// 2. ANALYSE ROUTES!
+  if CheckBox1.Checked then
+  Begin
+    i := Rcount-1 ;
+    repeat
+      k := trunc(Routes[i].Parray[length(Routes[i].Parray)-1] - Routes[i].Parray[0]);
+      if Abs(k) < 80 then
+           Begin
+              for j:= i to Rcount-2  do
+                 Routes[j] := Routes[j+1];
+              dec(RCount);
+              //dec(i);
+           End;
+       dec(i);
+    Until i < 0;
+  End;
+
+  if Rcount>0 then
+  BEGIN
+   StringGrid.RowCount := Rcount+1;
+
+   For i := 0 to Rcount-1 do
+   Begin
+
+    for j := 1 to 7 do
+     Routes[i].RH[j] :=0;
+    for j := 1 to 4 do
+     Routes[i].RD[j] :=0;
+
+    Sum := 0;
+    Max := 0;
+    SumS := 0;
+    For j := 0 to Length(Routes[i].Darray)-1 do
+    Begin
+       if Routes[i].Darray[j]> Max then
+          Max := Routes[i].Darray[j];
+       Sum := Sum + Routes[i].Darray[j]/Length(Routes[i].Darray);
+       SumS := SumS + Sqr(Routes[i].Darray[j])/Length(Routes[i].Darray);
+
+
+       if Routes[i].Darray[j] < RD_Lim[1] then
+          Routes[i].RD[1] := Routes[i].RD[1] + 1/Length(Routes[i].Darray)
+            else
+            if (Routes[i].Darray[j] >= RD_Lim[1])and(Routes[i].Darray[j] < RD_Lim[2]) then
+                 Routes[i].RD[2] := Routes[i].RD[2] + 1/Length(Routes[i].Darray)
+
+              else
+              if  (Routes[i].Darray[j] >= RD_Lim[2])and(Routes[i].Darray[j] < RD_Lim[3]) then
+                   Routes[i].RD[3] := Routes[i].RD[3] + 1/Length(Routes[i].Darray)
+                     else
+                        Routes[i].RD[4] := Routes[i].RD[4] + 1/Length(Routes[i].Darray);
+     End;
+
+     Routes[i].Davg := Sum;
+     Routes[i].DMax := Max;
+     Routes[i].DRMS := Sqrt(SumS);
+
+     if ComboBox1.ItemIndex > 0 then
+     Begin
+      Min := Routes[i].Harray[0];
+      Max := Routes[i].Harray[0];
+      Sum := 0;
+      SumS := 0;
+      For j := 0 to Length(Routes[i].Harray)-1 do
+      Begin
+         if Routes[i].Harray[j]> Max then
+            Max := Routes[i].Harray[j];
+         if Routes[i].Harray[j]< Min then
+            Min := Routes[i].Harray[j];
+
+         Sum := Sum + Routes[i].Harray[j]/Length(Routes[i].Darray);
+
+         if (Routes[i].Harray[j]< SpinEdit1.Value) or (Routes[i].Harray[j]> SpinEdit2.Value) then
+            SumS := SumS+1;
+
+         if Routes[i].Harray[j] < RH_Lim[1] then
+          Routes[i].RH[1] := Routes[i].RH[1] + 1/Length(Routes[i].Harray)
+           else
+             if Routes[i].Harray[j] >= RH_Lim[5] then
+               Routes[i].RH[6] := Routes[i].RH[6] + 1/Length(Routes[i].Harray)
+               else
+
+                for k := 1 to 4 do
+                Begin
+                   if (Routes[i].Harray[j] >= RH_Lim[k])and(Routes[i].Harray[j] < RH_Lim[k+1]) then
+                       Routes[i].RH[k+1] := Routes[i].RH[k+1] + 1/Length(Routes[i].Harray)
+
+                End;
+
+      End;
+      Routes[i].Havg := Sum;
+      Routes[i].Hmin := Min;
+      Routes[i].Hmax := Max;
+
+      Routes[i].BadH := SumS/Length(Routes[i].Darray);
+    End;
+
+
+    
+    if  Routes[i].DRMS < 0.5*SpinEdit3.Value then
+      e1 := 0
+       else
+         if  Routes[i].DRMS < 0.75*SpinEdit3.Value then
+           e1 := 1
+           else
+             if  Routes[i].DRMS < SpinEdit3.Value then
+               e1 := 2
+               else
+                 e1 := 3;
+
+
+    e2 := 0;
+    if ComboBox1.ItemIndex > 0 then
+    Begin
+      wH := Routes[i].RH[1]+ Routes[i].RH[6]+Routes[i].RH[7];
+
+      if (Routes[i].BadH < 0.25)and (wH < 0.1)  then
+        e2 := 0
+          else
+          if (Routes[i].BadH < 0.5)and(wH < 0.1) then
+             e2 := 1
+             else
+              if (wH < 0.25) then
+                e2 := 2
+                else
+                  e2 := 3
+    End;
+
+    if e1> e2 then
+      Routes[i].Est := e1
+       else
+         Routes[i].Est := e2;
+
+    Routes[i].E1 := e1;
+    Routes[i].E2 := e2;
+    
+    StringGrid.Cells[0,i+1] := Routes[i].name;
+    StringGrid.Cells[1,i+1] := Routes[i].t1;
+    StringGrid.Cells[2,i+1] := Routes[i].t2;
+
+    StringGrid.Cells[3,i+1] := Format('%.1f', [Routes[i].DRMS]);
+
+    if ComboBox1.ItemIndex >0 then
+      StringGrid.Cells[4,i+1] := Format('%.1f', [Routes[i].BadH*100])
+        else
+        StringGrid.Cells[4,i+1] := '-';
+
+    StringGrid.Cells[5,i+1] := Estims[Routes[i].Est];
+    //    StringGrid.Rows[i+1]
+   End;
+
+  END;
+
+  Combobox2.OnChange(nil);
+  if Combobox2.ItemIndex<0 then
+    StringGrid.OnClick(nil);
+
+  Panel15.Visible := false;  
+end;
+
+procedure TForm1.SpinEdit1Change(Sender: TObject);
+begin
+  // Analyse;
+end;
+
+procedure TForm1.SpinEdit4Change(Sender: TObject);
+begin
+  if CheckBox2.Checked then
+    Analyse;
+end;
+
+procedure TForm1.SpeedButton2Click(Sender: TObject);
+begin
+  Analyse;
+end;
+
+procedure TForm1.SpeedButton4Click(Sender: TObject);
+var S:TSTringList;
+    FN :String;
+    I:Integer;
+begin
+ if not SaveDialog1.Execute then
+   exit;
+ FN := SaveDialog1.FileName;
+
+
+ if AnsiLowerCase(Copy(FN, Length(FN)-3,4)) <> '.txt' then
+   FN := FN + '.txt';
+
+ if fileexists(FN) then
+    if MessageDLG(AskFN +#13 + FN, MtConfirmation, mbYesNo, 0) <> 6 then
+         exit;
+
+ S := TSTringList.Create;
+ S.Add( StringGrid.Cells[0,0] + #$9 + StringGrid.Cells[1,0] + #$9 +
+           StringGrid.Cells[2,0] + #$9 + StringGrid.Cells[1,0] +' X (m)' + #$9 +
+           StringGrid.Cells[1,0] +' Y (m)' + #$9 +
+           StringGrid.Cells[2,0] +' X (m)' + #$9 +
+           StringGrid.Cells[2,0] +' Y (m)' + #$9 +
+           Label9.Caption  + #$9 +
+           Label16.Caption  + #$9 + Label17.Caption  + #$9 +
+           Label8.Caption  + #$9 + Label21.Caption  + #$9 +
+           Label18.Caption  + #$9 + Label22.Caption  + #$9 +
+           Label7.Caption);
+ for I := 0 to RCount-1 do
+ begin
+    S.Add(Routes[i].name + #$9 + Routes[i].t1 + #$9 + Routes[i].t2 + #$9 +
+          FormatFloat('0.00', Routes[i].x1) + #$9 +
+          FormatFloat('0.00', Routes[i].y1) + #$9 +
+          FormatFloat('0.00', Routes[i].x2) + #$9 +
+          FormatFloat('0.00', Routes[i].y2) + #$9 +
+          FormatFloat('0.00', Routes[i].DRMS) + #$9 +
+          FormatFloat('0.00', Routes[i].Dmax) + #$9 +
+          FormatFloat('0.00', Routes[i].Davg) + #$9 +
+          FormatFloat('0.00', Routes[i].BadH) + #$9 +
+          FormatFloat('0.00', Routes[i].Hmin) + #$9 +
+          FormatFloat('0.00', Routes[i].Hmax) + #$9 +
+          FormatFloat('0.00', Routes[i].Havg) + #$9 +
+          Estims[Routes[i].Est]);
+
+ end;
+ S.SaveToFile(FN);
+end;
+
+procedure TForm1.SpeedButton5Click(Sender: TObject);
+begin
+  Form3.Show;
+end;
+
+procedure TForm1.ComboBox1Change(Sender: TObject);
+begin
+  case ComboBox1.ItemIndex of
+    0: begin
+       SpinEdit1.Enabled := false;
+       SpinEdit2.Enabled := false;
+       Panel10.Visible := false;
+       Form2.Button1.Enabled := false;
+       Form3.C2.Enabled := false;
+       Form3.C2.Checked := false;
+    end;
+    1: begin
+       SpinEdit1.Enabled := true;
+       SpinEdit2.Enabled := true;
+       SpinEdit1.Value := MinR;
+       SpinEdit2.Value := MaxR;
+       Panel10.Visible := true;
+       Form2.Button1.Enabled := true;
+       Form3.C2.Enabled := true;
+    end;
+    2: begin
+       SpinEdit1.Enabled := true;
+       SpinEdit2.Enabled := true;
+       SpinEdit1.Value := MinL;
+       SpinEdit2.Value := MaxL;
+       Panel10.Visible := true;
+       Form2.Button1.Enabled := true;
+       Form3.C2.Enabled := true;
+    end;
+   end;
+   if Panel10.Visible then
+       Panel5.ControlStyle := ControlStyle - [csParentBackground];
+   Analyse;    
+end;
+
+procedure TForm1.Lang2Change(Sender: TObject);
+begin
+  Languages.ItemIndex := Lang2.ItemIndex;
+  Languages.OnChange(nil);
+  Analyse;
+end;
+
+procedure TForm1.LanguagesChange(Sender: TObject);
+var S : TStringList; I:Integer;
+begin
+   S := TStringList.Create;
+
+   try
+     S.LoadFromFile(MyDir+'\Data\Est\'+Languages.Items[languages.ItemIndex]+'.lng');
+     Caption := s[0];
+
+     Label1.Caption := s[1];
+     Label2.Caption := s[2];
+     Label3.Caption := s[3];
+     Label13.Caption := s[4];
+     Label6.Caption := s[5];
+     Label20.Caption := s[6];
+     Label14.Caption := s[7];
+     Label15.Caption := s[8];
+     Label9.Caption := s[9];
+     Label8.Caption := s[10];
+     Label7.Caption := s[11];
+
+     Form2.Button2.Caption := s[12];
+     Form2.Button1.Caption := s[13];
+     Form2.Button3.Caption := s[14];
+
+     I := Combobox1.ItemIndex;
+     Combobox1.Items[0] := s[15];
+     Combobox1.Items[1] := s[16];
+     Combobox1.Items[2] := s[17];
+     Combobox1.ItemIndex := I;
+
+     StringGrid.Cells[0,0] := s[18];
+     StringGrid.Cells[1,0] := s[19];
+     StringGrid.Cells[2,0] := s[20];
+     StringGrid.Cells[3,0] := s[21];
+     StringGrid.Cells[4,0] := s[22];
+     StringGrid.Cells[5,0] := s[23];
+
+     I := Combobox2.ItemIndex;
+     Combobox2.Items[0] := s[18];
+     Combobox2.Items[1] := s[19];
+     Combobox2.Items[2] := s[20];
+     Combobox2.Items[3] := s[21];
+     Combobox2.Items[4] := s[22];
+     Combobox2.Items[5] := s[23];
+     Combobox2.ItemIndex := I;
+
+     Button1.Caption := s[24];
+     Form2.Caption := s[24];
+     Form2.RadioGroup1.Caption := s[25];
+     Form2.RadioGroup1.Items[0] := s[26];
+     Form2.RadioGroup1.Items[1] := s[27];
+
+     Label16.Caption := s[28];
+     Label17.Caption := s[29];
+     Label21.Caption := s[30];
+     Label18.Caption := s[31];
+     Label22.Caption := s[32];
+
+     Estims[0] :=  s[33];
+     Estims[1] :=  s[34];
+     Estims[2] :=  s[35];
+     Estims[3] :=  s[36];
+
+     ch.Caption := s[37];
+     PB.Caption := s[38];
+
+     SMin := s[39];
+     SMax := s[40];
+     SName := s[41];
+     Form2.DopSt := s[42];
+
+
+     Button2.Caption := s[43];
+     Button3.Caption := s[44];
+     CheckBox1.Caption :=  s[45];
+
+     Form2.RG2.Caption := s[46];
+     Form2.RG2.Items[0] := s[47];
+     Form2.RG2.Items[1] := s[48];
+     Qstn  := s[49];
+     Hg    := s[50];
+     Askfn := s[51];
+
+     SpeedButton4.Hint := s[52];
+     SpeedButton3.Hint := s[53];
+     SpeedButton5.Hint := s[54];
+
+     Form3.Caption := s[55];
+
+     Form3.GB.Caption := s[56];
+     Form3.C1.Caption := s[57];
+     Form3.C2.Caption := s[58];
+     Form3.C3.Caption := s[59];
+
+     Form3.RG2.Caption := s[60];
+     Form3.RG2.Items[0] := s[61];
+     Form3.RG2.Items[1] := s[62];
+
+     Form3.RG3.Caption :=  s[63];
+     Form3.RG3.Items[0] := s[64];
+     Form3.RG3.Items[1] := s[65];
+     Form3.RG3.Items[2] := s[66];
+     Form3.RG3.Items[3] := s[67];
+
+     Form3.RG4.Caption := s[68];
+     Form3.RG4.Items[0] := s[69];
+     Form3.RG4.Items[1] := s[70];
+
+     Form3.Button1.Caption := s[71];
+
+     Form3.RG5.Caption := s[72];
+     Form3.RG5.Items[0] := s[73];
+     Form3.RG5.Items[1] := s[74];
+
+     CheckBox2.Caption := s[75];
+   except
+     MessageDLG('Language file error', mterror,[mbOk],0);
+   end;
+  // ComboBox1.ItemIndex := 1;
+   S.Destroy;
+  // ComboBox2.ItemIndex := 1;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  if StringGrid.Row > 0 then
+  Begin
+    SaveGraph(StringGrid.Row - 1);
+    Form2.Showmodal;
+  End;
+end;
+
+procedure TForm1.ClearGrid;
+var i:integer;
+begin
+ StringGrid.RowCount := 2;
+ For i := 0 to 5 do
+    StringGrid.Cells[i,1]:='';
+end;
+
+procedure TForm1.StringGridClick(Sender: TObject);
+var i, j:integer;
+    c : real;
+begin
+ if (StringGrid.Row <1)or (FData.Count<1) then
+ Begin
+
+    RouteNm.Caption  := '-';
+    MaxH.Caption := '-';
+    MinH.Caption := '-';
+    AvH.Caption := '-';
+    BRAK.Caption := '-';
+    Maxu.Caption := '-';
+    Avu.Caption :=  '-';
+    RMSu.Caption := '-';
+
+   exit;
+ End;
+
+   i := StringGrid.Row - 1;
+ try
+   RouteNm.Caption := Routes[i].name;
+   Maxu.Caption    := Format('%.1f', [Routes[i].Dmax]);
+   Avu.Caption     := Format('%.1f', [Routes[i].Davg]);
+   RMSu.Caption    := Format('%.1f', [Routes[i].DRMS]);
+   Estim.Caption   := Estims[Routes[i].Est];
+   Label11.Caption := Estims[Routes[i].E1][1];
+
+   Maxu.Font.Color := clBlack;
+   if Routes[i].Dmax > RD_Lim[2]  then
+     Maxu.Font.Color := clRed;
+
+   Avu.Font.Color := clBlack;
+   if Routes[i].Davg > RD_Lim[2]  then
+     Avu.Font.Color := clRed;
+
+   RMSu.Font.Color := clBlack;
+   if Routes[i].DRMS > RD_Lim[2]  then
+     RMSu.Font.Color := clRed;
+
+   tu1.Caption := IntToStr(round(Routes[i].RD[1]*100))+'%';
+   tu2.Caption := IntToStr(round(Routes[i].RD[2]*100))+'%';
+   tu3.Caption := IntToStr(round(Routes[i].RD[3]*100))+'%';
+   tu4.Caption := IntToStr(round(Routes[i].RD[4]*100))+'%';
+
+   c := 55;
+
+   if ch.Checked then
+   begin
+       c:= 0;
+       for j := 1 to 6 do
+       begin
+          if Routes[i].RD[j]> c then
+             c:= (Routes[i].RD[j]);
+       end;
+        if c<>0 then
+          c := round(55/c);
+   end;
+
+   Su1.Height := round(Routes[i].RD[1]*c);
+   Su2.Height := round(Routes[i].RD[2]*c);
+   Su3.Height := round(Routes[i].RD[3]*c);
+   Su4.Height := round(Routes[i].RD[4]*c);
+
+   Su1.Top := DBottom.Top - Su1.Height+1;
+   Su2.Top := DBottom.Top - Su2.Height+1;
+   Su3.Top := DBottom.Top - Su3.Height+1;
+   Su4.Top := DBottom.Top - Su4.Height+1;
+
+   tu1.Top := Su1.Top -12;
+   tu2.Top := Su2.Top -12;
+   tu3.Top := Su3.Top -12;
+   tu4.Top := Su4.Top -12;
+
+   if ComboBox1.ItemIndex > 0 then
+   Begin
+     MaxH.Caption := Format('%.1f', [Routes[i].Hmax]);
+     MinH.Caption := Format('%.1f', [Routes[i].Hmin]);
+     AvH.Caption := Format('%.1f', [Routes[i].Havg]);
+     BRAK.Caption := Format('%.1f', [Routes[i].BadH*100]);
+
+     MaxH.Font.Color := clBlack;
+     if Routes[i].Hmax > RH_Lim[4]  then
+        MaxH.Font.Color := clRed;
+
+     AvH.Font.Color := clBlack;
+     if (Routes[i].Havg > RH_Lim[4]) or (Routes[i].Havg < RH_Lim[1])  then
+       AvH.Font.Color := clRed;
+
+     MinH.Font.Color := clBlack;
+     if Routes[i].Hmin < RH_Lim[1]  then
+       MinH.Font.Color := clRed;
+
+     BRAK.Font.Color := clBlack;
+     if Routes[i].BadH > 0.5  then
+       BRAK.Font.Color := clRed;
+
+     Label10.Caption := Estims[Routes[i].E2][1];
+
+     t1.Caption := IntToStr(round(Routes[i].RH[1]*100))+'%';
+     t2.Caption := IntToStr(round(Routes[i].RH[2]*100))+'%';
+     t3.Caption := IntToStr(round(Routes[i].RH[3]*100))+'%';
+     t4.Caption := IntToStr(round(Routes[i].RH[4]*100))+'%';
+     t5.Caption := IntToStr(round(Routes[i].RH[5]*100))+'%';
+
+
+     t6.Caption := IntToStr(round((Routes[i].RH[6])*100))+'%';
+
+     c := 100;
+
+     if ch.Checked then
+     begin
+       c:= 0;
+       for j := 1 to 6 do
+       begin
+          if Routes[i].RH[j]> c then
+             c:= (Routes[i].RH[j]);
+       end;
+        if c<>0 then
+          c := round(100/c);
+     end;
+
+     S1.Height := round(Routes[i].RH[1]*c);
+     S2.Height := round(Routes[i].RH[2]*c);
+     S3.Height := round(Routes[i].RH[3]*c);
+     S4.Height := round(Routes[i].RH[4]*c);
+     S5.Height := round(Routes[i].RH[5]*c);
+     S6.Height := round((Routes[i].RH[6])*c);
+
+
+     S1.Top := HBottom.Top - S1.Height+1;
+     S2.Top := HBottom.Top - S2.Height+1;
+     S3.Top := HBottom.Top - S3.Height+1;
+     S4.Top := HBottom.Top - S4.Height+1;
+     S5.Top := HBottom.Top - S5.Height+1;
+     S6.Top := HBottom.Top - S6.Height+1;
+
+     t1.Top := S1.Top -12;
+     t2.Top := S2.Top -12;
+     t3.Top := S3.Top -12;
+     t4.Top := S4.Top -12;
+     t5.Top := S5.Top -12;
+     t6.Top := S6.Top -12;
+
+   End
+     else
+     Begin
+       MaxH.Caption := '-';
+       MinH.Caption := '-';
+       AvH.Caption := '-';
+       BRAK.Caption := '-';
+     End;
+     
+ except
+
+ end;
+
+
+ if Label10.Caption = 'A' then
+    Label10.Font.Color := clGreen
+    else
+    if Label10.Caption = 'D' then
+      Label10.Font.Color := clRed
+      else
+        Label10.Font.Color := clBlack;
+
+ if Label11.Caption = 'A' then
+    Label11.Font.Color := clGreen
+    else
+    if Label11.Caption = 'D' then
+      Label11.Font.Color := clRed
+      else
+        Label11.Font.Color := clBlack;
+
+ if Estim.Caption[1] = 'A' then
+    Estim.Font.Color := clGreen
+    else
+    if Estim.Caption[1] = 'D' then
+      Estim.Font.Color := clRed
+      else
+        Estim.Font.Color := clBlack;
+end;
+
+procedure TForm1.FormActivate(Sender: TObject);
+var S : TStringList;
+    i, LN :integer;
+begin
+
+ if FSt then
+  FSt := False
+  else
+   exit;
+
+ MyDir := GetCurrentDir;
+
+ S := TStringList.Create;
+ LN := 0;
+ if fileexists('..\Data\Language.config') then
+ begin
+    S.LoadFromFile('..\Data\Language.config');
+    LN := StrToInt(s[0]);
+ end;
+
+ S.Clear;
+ AddFiles('Data\Est\', '*.lng', S);
+
+ Languages.Clear;
+ for I := 0 to S.Count - 1 do
+    Languages.Items.Add(copy(S[i], 1, length(S[i])-4));
+
+ Languages.ItemIndex := LN;
+ Languages.OnChange(nil);
+ Lang2.Items := Languages.Items;
+ Lang2.ItemIndex := LN;
+
+ FData := TStringList.Create;
+
+ MinR := 75;
+ MaxR := 125;
+
+ MinL := 25;
+ MaxL := 75;
+
+ if ParamStr(1)<>'' then
+  Begin
+    S.LoadFromFile(ParamStr(1));
+
+    Edit1.Text := s[0];
+
+    MinR := StrToInt(s[1]);
+    MaxR := StrToInt(s[2]);
+
+    MinL := StrToInt(s[3]);
+    MaxL := StrToInt(s[4]);
+    
+    SpinEdit1.Value := MinR;
+    SpinEdit2.Value := MaxR;
+    SpinEdit3.Value := StrToInt(s[5]);
+
+    FName := s[0];
+    if fileexists(FName) then
+      OpenData(FName)
+       else
+       begin
+          S.Destroy;
+          close;
+       end;
+    Analyse;
+    Panel1.Visible := true;
+    Panel3.Visible := false;
+    Form1.AutoSize := false;
+
+    if ComboBox1.ItemIndex = 0 then
+       Form1.Height := 550
+    else
+       Form1.Height := 670;
+    Form1.Constraints.MinHeight := 550;
+    Form1.Constraints.MinWidth := 800;
+
+  end;
+
+  S.Destroy;
+end;
+
+procedure TForm1.StringGridDrawCell(Sender: TObject; ACol, ARow: Integer;
+  Rect: TRect; State: TGridDrawState);
+var Col :TColor;
+begin
+  inherited;
+
+  if Arow > 0 then
+  Begin
+
+    if StringGrid.Cells[5,Arow] = Estims[0] then
+      Col := $00D5FFD5
+      else
+      if StringGrid.Cells[5,Arow] = Estims[1] then
+         Col := $00C2FCE2
+         else
+           if StringGrid.Cells[5,Arow] = Estims[2] then
+           Col := $00C0E1F5
+           else
+             if StringGrid.Cells[5,Arow] = Estims[3] then
+             Begin
+               Col := clRed;
+              // StringGrid.Canvas.Font.Color := clWhite;
+             End
+                  else
+                    Col := clWindow;
+
+        if ARow = StringGrid.Row then
+           col := clActiveCaption;
+    StringGrid.Canvas.Brush.Style := BsSolid;
+    StringGrid.Canvas.Brush.Color := col;
+    StringGrid.Canvas.FillRect(Rect);
+    
+    StringGrid.Canvas.TextOut(Rect.Left, Rect.Top, StringGrid.Cells[aCol,ARow]);
+   // StringGrid.Canvas.Font.Color :=  StringGrid.Font.Color;
+  End;
+
+
+end;
+
+procedure TForm1.chClick(Sender: TObject);
+begin
+  StringGrid.Onclick(nil);
+end;
+
+procedure TForm1.DownBClick(Sender: TObject);
+begin
+ UpB.Flat := true;
+ DownB.Flat := false;
+ ComboBox2.OnChange(nil);
+end;
+
+procedure TForm1.UpBClick(Sender: TObject);
+begin
+ UpB.Flat := false;
+ DownB.Flat := true;
+ ComboBox2.OnChange(nil);
+end;
+
+procedure SortStringGrid(StringGrid:TstringGrid; N: Integer; goUp: boolean; IntOrFloat: boolean);
+var
+  I, J, CntRow : Integer;
+  isMore :boolean;
+begin
+  
+  //SetLength(Routes, Length(Routes)+1);
+  CntRow := StringGrid.RowCount;
+
+  StringGrid.RowCount := StringGrid.RowCount + 1;
+  
+  for J := 1 to CntRow - 1 do
+  for I := 1 to CntRow - 1 do
+    begin
+      isMore := false;
+      case IntOrFloat of
+        true : isMore :=  StrToFloat2(StringGrid.Cells[n, I])
+                    > StrToFloat2(StringGrid.Cells[n, J]);
+        false : isMore := AnsiCompareStr(StringGrid.Cells[n, I],StringGrid.Cells[n, J]) > 0;
+      end;
+
+      if (goup) = (isMore) then
+      with StringGrid do
+      begin
+        Form1.Routes[Length(Form1.Routes)-1] := Form1.Routes[i-1];
+        Form1.Routes[I-1] := Form1.Routes[J-1];
+        Form1.Routes[J-1] := Form1.Routes[Length(Form1.Routes)-1];
+
+        Rows[CntRow] := Rows[i];
+        Rows[i] := Rows[J];
+        Rows[J] := Rows[CntRow];
+      end;
+    end;
+
+  StringGrid.RowCount := StringGrid.RowCount - 1;
+end;
+
+procedure TForm1.ComboBox2Change(Sender: TObject);
+begin
+ if StringGrid.RowCount < 2 then
+   exit;
+
+ if Combobox2.ItemIndex  < 0 then
+   exit;
+
+  SortStringGrid( StringGrid, Combobox2.ItemIndex, UpB.Flat,
+                  (Combobox2.ItemIndex = 3) or (Combobox2.ItemIndex = 4));
+  StringGrid.OnClick(nil);
+end;
+
+procedure TForm1.SaveGraph(I:Integer);  
+var j: integer;
+    S : TStringList;
+begin
+  if StringGrid.Row <= 0 then
+    exit;
+
+  S := TSTringList.Create;
+
+  /// HMin
+  S.Add(SMin+ #$9 +FloatToStr(Routes[i].Larray[0]) + #$9 +  '0' + #$9 + '0' + #$9 +
+          IntToStr(SpinEdit1.Value) + #$9 +Routes[i].Tarray[0]);
+
+  S.Add(SMin+ #$9 + FloatToStr(Routes[i].Larray[Length(Routes[i].Larray)-1]) + #$9 +  '0' + #$9 + '0' + #$9 +
+          IntToStr(SpinEdit1.Value)+ #$9 +Routes[i].Tarray[Length(Routes[i].Tarray)-1]);
+
+  // HMax
+  S.Add(SMax+ #$9 + FloatToStr(Routes[i].Larray[0]) + #$9 + '0' + #$9 +
+          IntToStr(SpinEdit3.Value) + #$9 + IntToStr(SpinEdit2.Value)+ #$9 +
+          Routes[i].Tarray[0]);
+
+  S.Add(SMax+ #$9 + FloatToStr(Routes[i].Larray[Length(Routes[i].Larray)-1]) + #$9 + '0' + #$9 +
+          IntToStr(SpinEdit3.Value) + #$9 + IntToStr(SpinEdit2.Value)+ #$9 +
+          Routes[i].Tarray[Length(Routes[i].Tarray)-1]);
+
+  for j := 0 to Length(Routes[i].Larray)-1 do
+    S.Add(SName+Routes[i].name + #$9 + FloatToStr(Routes[i].Larray[j]) + #$9 +
+          FloatToStr(Routes[i].Aarray[j]) + #$9 +
+          FloatToStr(Routes[i].Darray[j]) + #$9 +
+          FloatToStr(Routes[i].Harray[j])+ #$9 +
+          Routes[i].Tarray[j]);
+
+  S.SaveToFile(MyDir+'\Data\TempGraph.txt');
+
+
+  for j := 0 to Length(Routes[i].Larray)-1 do
+    S.Add(Hg + #$9 + FloatToStr(Routes[i].Larray[j]) + #$9 +
+          FloatToStr(Routes[i].Aarray[j]-Routes[i].Harray[j]) + #$9 +
+          '0' +  #$9 + '0'+ #$9 +
+          Routes[i].Tarray[j]);
+
+  S.SaveToFile(MyDir+'\Data\TempGraphB.txt');
+
+  S.Destroy;
+end;
+
+function DelDir(dir:string): Boolean;
+var
+  fos: TSHFileOpStruct;
+begin
+   ZeroMemory(@fos,SizeOf(fos));
+   with fos do
+   begin
+     wFunc := FO_DELETE;
+     fFlags := FOF_SILENT or FOF_NOCONFIRMATION;
+     pFrom := PChar(dir+#0);
+   end;
+   Result := (0 = ShFileOperation(fos));
+end;  
+
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+ SetcurrentDir(MyDir);
+ if DirectoryExists('Data\Tmp') then
+   DelDir('Data\Tmp');
+ if FileExists('Data\TempGraph.txt') then
+   DeleteFile('Data\TempGraph.txt');
+ if FileExists('Data\TempGraphA.txt') then
+   DeleteFile('Data\TempGraphA.txt');
+ if FileExists('Data\TempGraphB.txt') then
+   DeleteFile('Data\TempGraphB.txt');
+ if FileExists('Data\script.tmp') then
+   DeleteFile('Data\script.tmp');
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+ FSt := true;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  Panel16.Visible := not Panel16.Visible;
+  Button2.Visible := not Panel16.Visible;
+  Button3.Visible := Panel16.Visible;
+end;
+
+procedure TForm1.CheckBox1Click(Sender: TObject);
+begin
+  Analyse;
+end;
+
+end.

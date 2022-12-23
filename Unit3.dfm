@@ -1,0 +1,162 @@
+object Form3: TForm3
+  Left = 0
+  Top = 0
+  BorderStyle = bsDialog
+  Caption = #1054#1090#1095#1077#1090' '#1087#1086' '#1084#1072#1088#1096#1088#1091#1090#1072#1084
+  ClientHeight = 291
+  ClientWidth = 434
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poScreenCenter
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object RG2: TRadioGroup
+    Left = 199
+    Top = 8
+    Width = 226
+    Height = 39
+    Caption = #1054#1089#1100' '#1072#1073#1089#1094#1080#1089#1089
+    Columns = 2
+    ItemIndex = 1
+    Items.Strings = (
+      #1055#1088#1086#1083#1086#1078#1077#1085#1080#1077
+      #1042#1088#1077#1084#1103)
+    TabOrder = 0
+    OnClick = RG2Click
+  end
+  object GB: TGroupBox
+    Left = 8
+    Top = 8
+    Width = 185
+    Height = 163
+    Caption = #1043#1088#1072#1092#1080#1082#1080
+    TabOrder = 1
+    object C1: TCheckBox
+      Left = 16
+      Top = 16
+      Width = 153
+      Height = 25
+      Caption = #1059#1082#1083#1086#1085#1077#1085#1080#1103' '#1086#1090' '#1084#1072#1088#1096#1088#1091#1090#1086#1074' '#1074' '#1087#1083#1072#1085#1077
+      Checked = True
+      State = cbChecked
+      TabOrder = 0
+      WordWrap = True
+      OnClick = C1Click
+    end
+    object C2: TCheckBox
+      Left = 16
+      Top = 43
+      Width = 153
+      Height = 25
+      Caption = #1042#1099#1089#1086#1090#1099' '#1085#1072#1076' '#1079#1077#1084#1085#1086#1081' '#1087#1086#1074#1077#1088#1093#1085#1086#1089#1090#1100#1102
+      Enabled = False
+      TabOrder = 1
+      WordWrap = True
+    end
+    object C3: TCheckBox
+      Left = 16
+      Top = 70
+      Width = 153
+      Height = 25
+      Caption = #1042#1099#1089#1086#1090#1085#1099#1081' '#1087#1088#1086#1092#1080#1083#1100' ('#1072#1073#1089#1086#1083#1102#1090#1085#1099#1077' '#1074#1099#1089#1086#1090#1099')'
+      TabOrder = 2
+      WordWrap = True
+    end
+    object C4: TCheckBox
+      Left = 16
+      Top = 96
+      Width = 153
+      Height = 21
+      Caption = #1057#1082#1086#1088#1086#1089#1090#1100
+      Enabled = False
+      TabOrder = 3
+      WordWrap = True
+    end
+    object C5: TCheckBox
+      Left = 16
+      Top = 117
+      Width = 153
+      Height = 21
+      Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1089#1087#1091#1090#1085#1080#1082#1086#1074
+      Enabled = False
+      TabOrder = 4
+      WordWrap = True
+    end
+    object C6: TCheckBox
+      Left = 16
+      Top = 140
+      Width = 153
+      Height = 17
+      Caption = #1043#1077#1086#1084#1077#1090#1088#1080#1095#1077#1089#1082#1080#1081' '#1092#1072#1082#1090#1086#1088
+      Enabled = False
+      TabOrder = 5
+      WordWrap = True
+    end
+  end
+  object Button1: TButton
+    Left = 96
+    Top = 249
+    Width = 241
+    Height = 29
+    Caption = #1057#1092#1086#1088#1084#1080#1088#1086#1074#1072#1090#1100' '#1086#1090#1095#1077#1090
+    TabOrder = 2
+    OnClick = Button1Click
+  end
+  object RG3: TRadioGroup
+    Left = 199
+    Top = 48
+    Width = 226
+    Height = 123
+    Caption = #1052#1072#1088#1096#1088#1091#1090#1099
+    ItemIndex = 0
+    Items.Strings = (
+      #1042#1089#1077
+      #1058#1086#1083#1100#1082#1086' '#1089' '#1086#1094#1077#1085#1082#1086#1081' B '#1080' '#1085#1080#1078#1077
+      #1058#1086#1083#1100#1082#1086' '#1089' '#1086#1094#1077#1085#1082#1086#1081' '#1057' '#1080' '#1085#1080#1078#1077
+      #1058#1086#1083#1100#1082#1086' '#1089' '#1086#1094#1077#1085#1082#1086#1081' D')
+    TabOrder = 3
+  end
+  object RG4: TRadioGroup
+    Left = 199
+    Top = 172
+    Width = 226
+    Height = 69
+    Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
+    ItemIndex = 0
+    Items.Strings = (
+      #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1103
+      #1044#1086#1073#1072#1074#1080#1090#1100' '#1075#1088#1072#1092#1080#1082#1080' *.chs')
+    TabOrder = 4
+  end
+  object PB: TProgressBar
+    Left = 96
+    Top = 249
+    Width = 241
+    Height = 29
+    TabOrder = 5
+    Visible = False
+  end
+  object RG5: TRadioGroup
+    Left = 8
+    Top = 172
+    Width = 185
+    Height = 69
+    Caption = #1055#1086#1082#1072#1079#1072#1090#1100' '#1088#1077#1079#1091#1083#1100#1090#1072#1090
+    ItemIndex = 0
+    Items.Strings = (
+      #1048#1090#1086#1075#1086#1074#1099#1081' '#1086#1090#1095#1077#1090
+      #1055#1072#1087#1082#1072' '#1089' '#1075#1088#1072#1092#1080#1082#1072#1084#1080)
+    TabOrder = 6
+  end
+  object SaveDialog1: TSaveDialog
+    Filter = 'Html report *.html|*.html'
+    Left = 392
+    Top = 8
+  end
+end
